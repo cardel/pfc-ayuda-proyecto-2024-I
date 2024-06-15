@@ -1,5 +1,7 @@
 package proyecto
 
+import scala.annotation.tailrec
+
 class Itinerario() {
 
   type aeropuertos = List[Aeropuerto]
@@ -118,9 +120,28 @@ class Itinerario() {
     @return (String, String) => List[Itinerario] Retorna una función que recibe los codigos de dos aeropuertos, Retorna todos los itinerarios posibles de cod1 a cod2
     que minimizan el número de escalas
   */
-  def itinerariosEscalas(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]):(String, String)=>List[Itinerario]  = {
-    (cod1:String, cod2:String)=> List[Itinerario]()
+  def itinerariosEscalas(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]):(String, String)=>List[Itinerario]
+  = {
+    @tailrec
+    def sumarEscalas(itinerario: Itinerario, acc:Int=0): Int = {
+      itinerario match {
+        case Nil => acc
+        case h::Nil =>
+          acc + h.Esc
+        case h::t =>
+          sumarEscalas(t, acc+h.Esc+1)
+      }
+    }
+    (code1: String, code2:String) => {
+      val itinerario = itinerarios(vuelos, aeropuertos)
+      val sumaEscalas = for{
+        i <- itinerario(code1, code2)
+        sumas = sumarEscalas(i)
+      } yield (i, sumas)
+      sumaEscalas.sortBy(_._2).take(3).map(_._1)
+    }
   }
+
 
   def itinerariosAire(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
     //Recibe una lista de vuelos y aeropuertos
@@ -144,18 +165,18 @@ class Itinerario() {
 object prueba{
   //Funcion para probar la fucnion itinerarios
   def main(args: Array[String]): Unit = {
-    //    val itinerario = new Itinerario()
-    //    val itsCurso = itinerario.itinerariosTiempo(datos.vuelosCurso, datos.aeropuertosCurso)
+        val itinerario = new Itinerario()
+        val itsCurso = itinerario.itinerariosEscalas(datos.vuelosCurso, datos.aeropuertosCurso)
     //    val its1 = itsCurso("MID", "SVCS")
     //    val its2 = itsCurso("CLO", "SVCS")
-    //      val its3 = itsCurso("CLO", "SVO")
+          val its3 = itsCurso("CLO", "SVO")
     //    val its4 = itsCurso("CLO", "MEX")
     //    val its5 = itsCurso("CTG", "PTY")
-    //      println(its3)
+          println(its3)
 
     //    val itsCurs = itinerario.itinerarios(datos.vuelosD1, datos.aeropuertos)
     //    val its11 = itsCurs("ORD", "LAX")
-    //    print(its11)
+      //   print(its11)
 
   }
 }
