@@ -16,6 +16,7 @@ object App{
 
   def main(args: Array[String]): Unit = {
     println(saludo())
+
     println(vuelosCurso)
     println(
       withWarmer(new Warmer.Default) measure {
