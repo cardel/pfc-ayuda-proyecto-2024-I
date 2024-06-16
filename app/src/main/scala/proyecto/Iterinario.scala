@@ -1,3 +1,6 @@
+/*
+  @autor: Edwar Forero, Alexis Solis, Santiago Carrillo
+*/
 package proyecto
 
 import scala.annotation.tailrec
@@ -61,7 +64,7 @@ class Itinerario() {
       val aeropuertoDestino = aeropuertoMap(vuelo.Dst)
       val diferenciaGMT = (aeropuertoDestino.GMT - aeropuertoOrigen.GMT)/100
       val salidaEnMinutos = vuelo.HS * 60 + vuelo.MS
-      val llegadaEnMinutos = vuelo.HL * 60 + vuelo.ML + (diferenciaGMT * 60).toInt
+      val llegadaEnMinutos = vuelo.HL * 60 + vuelo.ML - (diferenciaGMT * 60).toInt
       if (llegadaEnMinutos >= salidaEnMinutos) {
         llegadaEnMinutos - salidaEnMinutos
       } else {
@@ -142,41 +145,63 @@ class Itinerario() {
     }
   }
 
+  /*
+    @param vuelos: List[Vuelo] recive una lista de vuelos
+    @param aeropuertos: List[Aeropuerto] recive una lista de aeropuertos
+    @return (String, String, Int, Int) => List[Itinerario] Retorna una función que recibe los codigos de dos aeropuertos y dos enteros, que es la hora de la cita
+    Retorna todos los itinerarios posibles de cod1 a cod2 que permiten minimizar el tiempo en tierra
+  */
+  def itinerariosAire(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[Itinerario] = {
+    val aeropuertoMap: Map[String, Aeropuerto] = aeropuertos.map(a => a.Cod -> a).toMap
 
-  def itinerariosAire(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
-    //Recibe una lista de vuelos y aeropuertos
-    //Retorna una función que recibe los codigos de dos aeropuertos
-    //Retorna todos los tres mejores itinerarios posibles de cod1 a cod2
-    //que minimizan el tiempo en itinerarios
-    (cod1:String, cod2:String)=> List[Itinerario]()
+    @tailrec
+    def sumarHoras(itinerario: Itinerario, acc: Int = 0): Int = {
+      itinerario match {
+        case Nil => acc
+        case h :: t =>
+          val diferenciaHoraria = (((aeropuertoMap(h.Dst).GMT - aeropuertoMap(h.Org).GMT)/100) * 60).toInt
+          val salida = h.HS * 60 + h.MS
+          val llegada = (h.HL * 60 + h.ML) - diferenciaHoraria
+          val tiempoVuelo = if (llegada >= salida) {
+            llegada - salida
+          } else {
+            (1440 + llegada) - salida
+          }
+          sumarHoras(t, acc + tiempoVuelo)
+      }
+    }
+
+    (code1: String, code2: String) => {
+      val itinerario = itinerarios(vuelos, aeropuertos)
+      val sumarHoraVuelo = for {
+        i <- itinerario(code1, code2)
+        sumas = sumarHoras(i)
+      } yield {
+        (i, sumas)
+      }
+      val mejoresItinerarios = sumarHoraVuelo.sortBy(_._2).take(3).map(_._1)
+      mejoresItinerarios
+    }
   }
 
+  /*
+    @param vuelos: List[Vuelo] recive una lista de vuelos
+    @param aeropuertos: List[Aeropuerto] recive una lista de aeropuertos
+    @return (String, String, Int, Int) => List[Itinerario] Retorna una función que recibe los codigos de dos aeropuertos y dos enteros, que es la hora de la cita
+    Retorna todos los itinerarios posibles de cod1 a cod2 que permiten llegar a una hora de la cita
+  */
   def itinerariosSalida(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String, Int, Int) => List[Itinerario] = {
-    //Recibe una lista de vuelos y aeropuertos
-    //Retorna una función que recibe los codigos de dos aeropuertos y dos enteros, que es la hora de la cita
-    //Retorna todos los tres mejores itinerarios posibles de cod1 a cod2
-    //que permiten llegar a una hora de la cita
-    (cod1:String, cod2:String, HC:Int, MC:Int)=> List[Itinerario]()
+    (code1: String, code2:String, code3:Int, code4:Int) => {
+      val itinerario = itinerarios(vuelos, aeropuertos)
+      val mejoresSalidas = for{
+        i <- itinerario(code1, code2)
+        horaPreferida = code3*60 + code4
+        horarioLlegada = i.reverse.head.HL*60 + i.reverse.head.ML
+        if horarioLlegada < horaPreferida
+      } yield (i, i.head.HS*60 + i.head.MS)
+      mejoresSalidas.sortBy(_._2).take(1).map(_._1)
+    }
   }
 
 
-}
-
-object prueba{
-  //Funcion para probar la fucnion itinerarios
-  def main(args: Array[String]): Unit = {
-        val itinerario = new Itinerario()
-        val itsCurso = itinerario.itinerariosEscalas(datos.vuelosCurso, datos.aeropuertosCurso)
-    //    val its1 = itsCurso("MID", "SVCS")
-    //    val its2 = itsCurso("CLO", "SVCS")
-          val its3 = itsCurso("CLO", "SVO")
-    //    val its4 = itsCurso("CLO", "MEX")
-    //    val its5 = itsCurso("CTG", "PTY")
-          println(its3)
-
-    //    val itsCurs = itinerario.itinerarios(datos.vuelosD1, datos.aeropuertos)
-    //    val its11 = itsCurs("ORD", "LAX")
-      //   print(its11)
-
-  }
 }
