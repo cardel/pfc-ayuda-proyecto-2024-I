@@ -9,7 +9,11 @@ class Itinerario() {
     //Recibe una lista de vuelos y aeropuertos
     //Retorna una función que recibe los codigos de dos aeropuertos
     //Retorna todos los itinerarios posibles de cod1 a cod2
-    (cod1:String, cod2:String)=> List[Itinerario]()
+    def generarItinerarios(cod1: String, cod2: String): List[Itinerario] = {
+      List[Itinerario]
+    }
+
+    generarItinerarios
   }
 
   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
