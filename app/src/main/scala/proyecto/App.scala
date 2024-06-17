@@ -15,12 +15,8 @@ object App{
   def saludo() = "Proyecto final"
 
   def main(args: Array[String]): Unit = {
-    println(saludo())
-    println(vuelosCurso)
-    println(
-      withWarmer(new Warmer.Default) measure {
-        (1 to 100000000).toArray
-      }
-    )
+    /*val objitinerario = new Itinerario()
+    val itinerario = objitinerario.itinerarios(vuelosCurso, aeropuertosCurso)
+    println(itinerario("CLO", "SVO"))*/
   }
  }

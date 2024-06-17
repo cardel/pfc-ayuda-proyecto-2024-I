@@ -5,12 +5,22 @@ class Itinerario() {
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
 
-  def itinerarios(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
+  def itinerarios(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     //Recibe una lista de vuelos y aeropuertos
     //Retorna una función que recibe los codigos de dos aeropuertos
     //Retorna todos los itinerarios posibles de cod1 a cod2
-    def generarItinerarios(cod1: String, cod2: String): List[Itinerario] = {
-      List[Itinerario]
+    def generarItinerarios(cod1: String, cod2: String): List[List[Vuelo]] = {
+      def buscar(actual: String, destino: String, visitados: Set[String] = Set()): List[List[Vuelo]] = {
+        if (actual == destino) List(List())
+        else {
+          for {
+            v <- vuelos if (v.Org == actual && !visitados.contains(v.Dst))
+            i <- buscar(v.Dst, destino, visitados + actual)
+          } yield v::i
+        }
+      }
+
+      buscar(cod1, cod2)
     }
 
     generarItinerarios
