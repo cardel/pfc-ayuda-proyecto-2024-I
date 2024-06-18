@@ -46,12 +46,12 @@ class Itinerario() {
         escExp + escTec.sum
       }
 
-      def filtrarMenores(pivote: List[Vuelo], its: List[List[Vuelo]]): Boolean = {
+      def encontrarMenor(pivote: List[Vuelo], its: List[List[Vuelo]]): Boolean = {
         its.forall(it => calcularEscalas(pivote) <= calcularEscalas(it))
       }
 
-      def encontrarPrimero(busqueda: List[Vuelo], its: List[List[Vuelo]]): List[Vuelo] = {
-        val primero = its.find(it => calcularEscalas(it) == calcularEscalas(busqueda))
+      def buscarVuelo(busqueda: List[Vuelo], its: List[List[Vuelo]]): List[Vuelo] = {
+        val primero = its.find(it => calcularEscalas(it) == calcularEscalas(busqueda) && it.length < busqueda.length)
 
         primero match {
           case Some(value) => value
@@ -63,8 +63,8 @@ class Itinerario() {
         its match {
           case Nil => Nil
           case h::t =>
-            if (filtrarMenores(h, itsFiltrada)) {
-              val menor = encontrarPrimero(h, itsFiltrada)
+            if (encontrarMenor(h, itsFiltrada)) {
+              val menor = buscarVuelo(h, itsFiltrada)
               menor::minimoEscalasAux(t, itsFiltrada.filter(it => it != menor))
             }
             else minimoEscalasAux(t, itsFiltrada)
