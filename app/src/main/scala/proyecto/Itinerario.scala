@@ -151,35 +151,19 @@ class Itinerario() {
     def convertirAMinutos(hora: Int, minutos: Int): Int = {
       hora * 60 + minutos
     }
-    def buscarItinerarios(origen: String, destino: String, visitados: Set[String], caminoActual: List[Vuelo], horaCita: Int): List[List[Vuelo]] = {
-      if (origen == destino) {
-        if (convertirAMinutos(caminoActual.last.HL, caminoActual.last.ML) <= horaCita) List(caminoActual)
-        else List()
-      } else {
-        val vuelosDisponibles = vuelos.filter(v =>
-          v.Org == origen &&
-            !visitados.contains(v.Dst) &&
-            convertirAMinutos(v.HS, v.MS) > convertirAMinutos(caminoActual.last.HL, caminoActual.last.ML) &&
-            convertirAMinutos(v.HL, v.ML) <= horaCita
-        )
-        vuelosDisponibles.flatMap { vuelo =>
-          val nuevosVisitados = visitados + origen
-          buscarItinerarios(vuelo.Dst, destino, nuevosVisitados, caminoActual :+ vuelo, horaCita)
-        }
-      }
-    }
 
-    (origen: String, destino: String, horaCita: Int, minCita: Int) => {
+    def minimaSalida(cod1: String, cod2: String, horaCita: Int, minCita: Int): List[List[Vuelo]] = {
       val tiempoCita = convertirAMinutos(horaCita, minCita)
-      val itinerariosEncontrados = vuelos.filter(_.Org == origen).flatMap { vuelo =>
-        buscarItinerarios(vuelo.Dst, destino, Set.empty, List(vuelo), tiempoCita)
-      }
+      val itsAll = itinerarios(vuelos, aeropuertos)(cod1, cod2)
+      val itsValidos = itsAll.filter(it => convertirAMinutos(it.last.HL, it.last.ML) <= tiempoCita)
 
-      if (itinerariosEncontrados.isEmpty) List()
+      if (itsValidos.isEmpty) List()
       else {
-        val salidaMasTarde = itinerariosEncontrados.map(it => convertirAMinutos(it.last.HS, it.last.MS)).max
-        itinerariosEncontrados.filter(it => convertirAMinutos(it.last.HS, it.last.MS) == salidaMasTarde)
+        val salidaMasTarde = itsValidos.flatMap(it => it.map(v => convertirAMinutos(v.HS, v.MS))).max
+        itsValidos.filter(it => it.exists(v => convertirAMinutos(v.HS, v.MS) == salidaMasTarde))
       }
     }
+
+    minimaSalida
   }
 }
