@@ -86,12 +86,39 @@ class Itinerario() {
     (cod1:String, cod2:String)=> List[Itinerario]()
   }
 
-  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String, Int, Int) => List[Itinerario] = {
-    //Recibe una lista de vuelos y aeropuertos
-    //Retorna una función que recibe los codigos de dos aeropuertos y dos enteros, que es la hora de la cita
-    //Retorna todos los tres mejores itinerarios posibles de cod1 a cod2
-    //que permiten llegar a una hora de la cita
-    (cod1:String, cod2:String, HC:Int, MC:Int)=> List[Itinerario]()
-  }
+  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String, Int, Int) => List[List[Vuelo]] = {
+    def convertirAMinutos(hora: Int, minutos: Int): Int = {
+      hora * 60 + minutos
+    }
+    def buscarItinerarios(origen: String, destino: String, visitados: Set[String], caminoActual: List[Vuelo], horaCita: Int): List[List[Vuelo]] = {
+      if (origen == destino) {
+        if (convertirAMinutos(caminoActual.last.HL, caminoActual.last.ML) <= horaCita) List(caminoActual)
+        else List()
+      } else {
+        val vuelosDisponibles = vuelos.filter(v =>
+          v.Org == origen &&
+            !visitados.contains(v.Dst) &&
+            convertirAMinutos(v.HS, v.MS) > convertirAMinutos(caminoActual.last.HL, caminoActual.last.ML) &&
+            convertirAMinutos(v.HL, v.ML) <= horaCita
+        )
+        vuelosDisponibles.flatMap { vuelo =>
+          val nuevosVisitados = visitados + origen
+          buscarItinerarios(vuelo.Dst, destino, nuevosVisitados, caminoActual :+ vuelo, horaCita)
+        }
+      }
+    }
 
+    (origen: String, destino: String, horaCita: Int, minCita: Int) => {
+      val tiempoCita = convertirAMinutos(horaCita, minCita)
+      val itinerariosEncontrados = vuelos.filter(_.Org == origen).flatMap { vuelo =>
+        buscarItinerarios(vuelo.Dst, destino, Set.empty, List(vuelo), tiempoCita)
+      }
+
+      if (itinerariosEncontrados.isEmpty) List()
+      else {
+        val salidaMasTarde = itinerariosEncontrados.map(it => convertirAMinutos(it.last.HS, it.last.MS)).max
+        itinerariosEncontrados.filter(it => convertirAMinutos(it.last.HS, it.last.MS) == salidaMasTarde)
+      }
+    }
+  }
 }
