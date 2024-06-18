@@ -15,8 +15,8 @@ object App{
   def saludo() = "Proyecto final"
 
   def main(args: Array[String]): Unit = {
-    /*val objitinerario = new Itinerario()
-    val itinerario = objitinerario.itinerarios(vuelosCurso, aeropuertosCurso)
-    println(itinerario("CLO", "SVO"))*/
+    val objitinerario = new Itinerario()
+    //val itinerario = objitinerario.itinerariosEscalas(vuelosCurso, aeropuertosCurso)
+    //println(itinerario("CLO", "SVO"))
   }
  }

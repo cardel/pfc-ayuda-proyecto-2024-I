@@ -14,7 +14,7 @@ class Itinerario() {
         if (actual == destino) List(List())
         else {
           for {
-            v <- vuelos if (v.Org == actual && !visitados.contains(v.Dst))
+            v <- vuelos if v.Org == actual && !visitados.contains(v.Dst)
             i <- buscar(v.Dst, destino, visitados + actual)
           } yield v::i
         }
@@ -33,13 +33,49 @@ class Itinerario() {
     (cod1:String, cod2:String)=> List[Itinerario]()
   }
 
-  def itinerariosEscalas(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]):(String, String)=>List[Itinerario]
+  def itinerariosEscalas(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[List[Vuelo]]
   = {
     //Recibe una lista de vuelos y aeropuertos
     //Retorna una función que recibe los codigos de dos aeropuertos
     //Retorna todos los tres mejores itinerarios posibles de cod1 a cod2
     //que minimizan el número de escalas
-    (cod1:String, cod2:String)=> List[Itinerario]()
+    def minimoEscalas(cod1: String, cod2: String): List[List[Vuelo]] = {
+      def calcularEscalas(itinerario: List[Vuelo]): Int = {
+        val escExp = itinerario.count(v => v.Dst != cod2)
+        val escTec = itinerario.map(v => v.Esc)
+        escExp + escTec.sum
+      }
+
+      def encontrarMenor(pivote: List[Vuelo], its: List[List[Vuelo]]): Boolean = {
+        its.forall(it => calcularEscalas(pivote) <= calcularEscalas(it))
+      }
+
+      def buscarVuelo(busqueda: List[Vuelo], its: List[List[Vuelo]]): List[Vuelo] = {
+        val primero = its.find(it => calcularEscalas(it) == calcularEscalas(busqueda) && it.length < busqueda.length)
+
+        primero match {
+          case Some(value) => value
+          case None => busqueda
+        }
+      }
+
+      def minimoEscalasAux(its: List[List[Vuelo]], itsFiltrada: List[List[Vuelo]]): List[List[Vuelo]] = {
+        its match {
+          case Nil => Nil
+          case h::t =>
+            if (encontrarMenor(h, itsFiltrada)) {
+              val menor = buscarVuelo(h, itsFiltrada)
+              menor::minimoEscalasAux(t, itsFiltrada.filter(it => it != menor))
+            }
+            else minimoEscalasAux(t, itsFiltrada)
+        }
+      }
+
+      val itsAll = itinerarios(vuelos, aeropuertos)(cod1, cod2)
+      minimoEscalasAux(itsAll, itsAll)
+    }
+
+    minimoEscalas
   }
 
   def itinerariosAire(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
