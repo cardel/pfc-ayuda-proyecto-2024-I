@@ -21,6 +21,7 @@ class Itinerario() {
     findItinerarios
   }
 
+
   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     def minimoTiempo(cod1: String, cod2: String): List[List[Vuelo]] = {
       val itsAll = itinerarios(vuelos, aeropuertos)(cod1, cod2)
@@ -77,7 +78,7 @@ class Itinerario() {
     minimoEscalas
   }
 
-   def itinerariosAire(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
+  def itinerariosAire(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     def calcularTiempoTotal(itinerario: List[Vuelo]): Int = {
       itinerario match {
         case Nil => 0
@@ -125,7 +126,7 @@ class Itinerario() {
     }
 
     (origen: String, destino: String, horaCita: Int, minCita: Int) => {
-      val tiempoCita = horaCita * 60 + minCita
+      val tiempoCita = convertirAMinutos(horaCita, minCita)
       val itinerariosEncontrados = vuelos.filter(_.Org == origen).flatMap { vuelo =>
         buscarItinerarios(vuelo.Dst, destino, Set.empty, List(vuelo), tiempoCita)
       }
@@ -137,5 +138,6 @@ class Itinerario() {
       }
     }
   }
-  
+
+
 }
