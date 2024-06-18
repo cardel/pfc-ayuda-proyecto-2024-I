@@ -37,7 +37,7 @@ class Itinerario() {
       val salidaEnMinutos = (vuelo.HS * 60) + vuelo.MS
       val llegadaEnMinutos = (vuelo.HL * 60) + vuelo.ML
 
-      val diferenciaGMT = (aeropuertoDestino.GMT - aeropuertoOrigen.GMT)/100
+      val diferenciaGMT = (aeropuertoDestino.GMT - aeropuertoOrigen.GMT) / 100
       val diferenciaGMTEnMinutos = (diferenciaGMT * 60).toInt
 
       val duracionEnMinutos = llegadaEnMinutos - (salidaEnMinutos + diferenciaGMTEnMinutos)
@@ -47,8 +47,8 @@ class Itinerario() {
 
     def calcularTiempoEspera(vuelo1: Vuelo, vuelo2: Vuelo): Int = {
 
-      val llegadaEnMinutos = vuelo1.HL * 60 + vuelo1.ML
-      val salidaEnMinutos = vuelo2.HS * 60 + vuelo2.MS
+      val llegadaEnMinutos = (vuelo1.HL * 60) + vuelo1.ML
+      val salidaEnMinutos = (vuelo2.HS * 60) + vuelo2.MS
 
       val esperaEnMinutos = salidaEnMinutos - llegadaEnMinutos
 
@@ -131,11 +131,7 @@ class Itinerario() {
     }
 
     def calcularTiempoTotal(itinerario: List[Vuelo]): Int = {
-      itinerario match {
-        case Nil => 0
-        case _ :: Nil => 0
-        case vuelo1 :: vuelo2 :: tail => calcularDuracionVuelo(vuelo1) + calcularTiempoTotal(vuelo2 :: tail)
-      }
+      itinerario.map(v => calcularDuracionVuelo(v)).sum
     }
 
     def minimoAire(cod1: String, cod2: String): List[List[Vuelo]] = {
