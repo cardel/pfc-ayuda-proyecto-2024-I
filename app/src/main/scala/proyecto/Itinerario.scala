@@ -152,11 +152,20 @@ class Itinerario() {
       val tiempoCita = convertirAMinutos(horaCita, minCita)
       val itsAll = itinerarios(vuelos, aeropuertos)(cod1, cod2)
       val itsValidos = itsAll.filter(it => convertirAMinutos(it.last.HL, it.last.ML) <= tiempoCita)
+      /*val itsValidos = itsAll.filter(it => {
+        val aeropuertoDestino = aeropuertos.find(_.Cod == it.last.Dst).get
+        val horaLlegadaEnMinutos = convertirAMinutos(it.last.HL, it.last.ML)
+        val diferenciaGMT = (aeropuertoDestino.GMT - aeropuertos.find(_.Cod == cod2).get.GMT) * 60
+        val horaLlegadaEnDestino = horaLlegadaEnMinutos - diferenciaGMT.toInt
+        horaLlegadaEnDestino <= tiempoCita
+      })*/
 
       if (itsValidos.isEmpty) List()
       else {
-        val salidaMasTarde = itsValidos.flatMap(it => it.map(v => convertirAMinutos(v.HS, v.MS))).max
-        itsValidos.filter(it => it.exists(v => convertirAMinutos(v.HS, v.MS) == salidaMasTarde))
+        println(itsValidos)
+        itsValidos.sortBy(it => (tiempoCita - convertirAMinutos(it.last.HL, it.last.ML), -convertirAMinutos(it.head.HS, it.head.MS))).take(1)
+        //val salidaMasTarde = itsValidos.flatMap(it => it.map(v => convertirAMinutos(v.HS, v.MS))).max
+        //itsValidos.filter(it => it.exists(v => convertirAMinutos(v.HS, v.MS) == salidaMasTarde))
       }
     }
 
