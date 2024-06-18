@@ -33,13 +33,49 @@ class Itinerario() {
     (cod1:String, cod2:String)=> List[Itinerario]()
   }
 
-  def itinerariosEscalas(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]):(String, String)=>List[Itinerario]
+  def itinerariosEscalas(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[List[Vuelo]]
   = {
     //Recibe una lista de vuelos y aeropuertos
     //Retorna una función que recibe los codigos de dos aeropuertos
     //Retorna todos los tres mejores itinerarios posibles de cod1 a cod2
     //que minimizan el número de escalas
-    (cod1:String, cod2:String)=> List[Itinerario]()
+    def minimoEscalas(cod1: String, cod2: String): List[List[Vuelo]] = {
+      def calcularEscalas(itinerario: List[Vuelo]): Int = {
+        val escExp = itinerario.count(v => v.Dst != cod2)
+        val escTec = itinerario.map(v => v.Esc)
+        escExp + escTec.sum
+      }
+
+      def filtrarMenores(pivote: List[Vuelo], its: List[List[Vuelo]]): Boolean = {
+        its.forall(it => calcularEscalas(pivote) <= calcularEscalas(it))
+      }
+
+      def encontrarPrimero(busqueda: List[Vuelo], its: List[List[Vuelo]]): List[Vuelo] = {
+        val primero = its.find(it => calcularEscalas(it) == calcularEscalas(busqueda))
+
+        primero match {
+          case Some(value) => value
+          case None => busqueda
+        }
+      }
+
+      def minimoEscalasAux(its: List[List[Vuelo]], itsFiltrada: List[List[Vuelo]]): List[List[Vuelo]] = {
+        its match {
+          case Nil => Nil
+          case h::t =>
+            if (filtrarMenores(h, itsFiltrada)) {
+              val menor = encontrarPrimero(h, itsFiltrada)
+              menor::minimoEscalasAux(t, itsFiltrada.filter(it => it != menor))
+            }
+            else minimoEscalasAux(t, itsFiltrada)
+        }
+      }
+
+      val its = itinerarios(vuelos, aeropuertos)(cod1, cod2)
+      minimoEscalasAux(its, its)
+    }
+
+    minimoEscalas
   }
 
   def itinerariosAire(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
