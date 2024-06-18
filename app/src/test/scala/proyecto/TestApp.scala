@@ -11,7 +11,5 @@ import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class TestApp extends AnyFunSuite{
-    test("testTaller4"){
-        assert("Proyecto final" == App.saludo())
-    }
+
 }

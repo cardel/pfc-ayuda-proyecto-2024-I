@@ -196,12 +196,11 @@ class Itinerario() {
       val mejoresSalidas = for{
         i <- itinerario(code1, code2)
         horaPreferida = code3*60 + code4
-        horarioLlegada = i.reverse.head.HL*60 + i.reverse.head.ML
+        horarioLlegada = i.last.HL*60 + i.last.ML
         if horarioLlegada < horaPreferida
       } yield (i, i.head.HS*60 + i.head.MS)
       mejoresSalidas.sortBy(_._2).take(1).map(_._1)
     }
   }
-
-
 }
+
