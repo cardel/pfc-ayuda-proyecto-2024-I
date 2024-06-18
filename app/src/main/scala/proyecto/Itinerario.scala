@@ -14,7 +14,7 @@ class Itinerario() {
         if (actual == destino) List(List())
         else {
           for {
-            v <- vuelos if (v.Org == actual && !visitados.contains(v.Dst))
+            v <- vuelos if v.Org == actual && !visitados.contains(v.Dst)
             i <- buscar(v.Dst, destino, visitados + actual)
           } yield v::i
         }
