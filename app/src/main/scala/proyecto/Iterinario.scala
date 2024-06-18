@@ -115,7 +115,7 @@ class Itinerario() {
     }
 
     (origen: String, destino: String, horaCita: Int, minCita: Int) => {
-      val tiempoCita = convertirAMinutos(horaCita, minCita)
+      val tiempoCita = horaCita * 60 + minCita
       val itinerariosEncontrados = vuelos.filter(_.Org == origen).flatMap { vuelo =>
         buscarItinerarios(vuelo.Dst, destino, Set.empty, List(vuelo), tiempoCita)
       }
