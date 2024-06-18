@@ -29,52 +29,41 @@ class Itinerario() {
     }
     minimoTiempo
   }
-
   def calcularDuracionVuelo(vuelo: Vuelo, aeropuertos: List[Aeropuerto]): Int = {
     val aeropuertoOrigen = aeropuertos.find(_.Cod == vuelo.Org).get
     val aeropuertoDestino = aeropuertos.find(_.Cod == vuelo.Dst).get
-
     val salidaEnMinutos = (vuelo.HS * 60) + vuelo.MS
     val llegadaEnMinutos = (vuelo.HL * 60) + vuelo.ML
-
     val diferenciaGMT = (aeropuertoDestino.GMT - aeropuertoOrigen.GMT) / 100
     val diferenciaGMTEnMinutos = (diferenciaGMT * 60).toInt
-
     val duracionEnMinutos = llegadaEnMinutos - (salidaEnMinutos + diferenciaGMTEnMinutos)
-
     if (duracionEnMinutos < 0) duracionEnMinutos + 1440 else duracionEnMinutos
   }
-
   def calcularTiempoEspera(vuelo1: Vuelo, vuelo2: Vuelo): Int = {
     val llegadaEnMinutos = vuelo1.HL * 60 + vuelo1.ML
     val salidaEnMinutos = vuelo2.HS * 60 + vuelo2.MS
+
 
     val esperaEnMinutos = salidaEnMinutos - llegadaEnMinutos
 
     if (esperaEnMinutos < 0) esperaEnMinutos + 1440 else esperaEnMinutos
   }
-
   def calcularTiempoTotal(itinerario: List[Vuelo], aeropuertos: List[Aeropuerto]): Int = {
     val tiemposDeVuelo = itinerario.map(vuelo => calcularDuracionVuelo(vuelo, aeropuertos))
     val tiemposDeEspera = itinerario.zip(itinerario.tail).map { case (v1, v2) => calcularTiempoEspera(v1, v2) }
     tiemposDeVuelo.sum + tiemposDeEspera.sum
   }
-
-
   def itinerariosEscalas(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[List[Vuelo]] = {
     def minimoEscalas(cod1: String, cod2: String): List[List[Vuelo]] = {
       val itsAll = itinerarios(vuelos, aeropuertos)(cod1, cod2)
-
       def calcularEscalas(itinerario: List[Vuelo]): Int = {
         val escExp = itinerario.count(v => v.Dst != cod2)
         val escTec = itinerario.map(v => v.Esc)
         escExp + escTec.sum
       }
-
       val itsAllEscalas = itsAll.map(it => (it, calcularEscalas(it)))
       itsAllEscalas.sortBy(_._2).map(_._1).take(3)
     }
-
     minimoEscalas
   }
 
