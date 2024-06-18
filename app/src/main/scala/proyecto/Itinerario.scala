@@ -71,8 +71,8 @@ class Itinerario() {
         }
       }
 
-      val its = itinerarios(vuelos, aeropuertos)(cod1, cod2)
-      minimoEscalasAux(its, its)
+      val itsAll = itinerarios(vuelos, aeropuertos)(cod1, cod2)
+      minimoEscalasAux(itsAll, itsAll)
     }
 
     minimoEscalas
