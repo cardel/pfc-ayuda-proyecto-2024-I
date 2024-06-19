@@ -6,6 +6,7 @@ import scala.annotation.tailrec
 import scala.collection.parallel.CollectionConverters._
 import scala.collection.parallel.ParSeq
 
+
 class ItinerariosPar() {
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
@@ -102,8 +103,15 @@ class ItinerariosPar() {
     }
   }
 
-  def itinerariosEscalasPar(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]):(String, String)=>List[Itinerario]
-  = {
+  def itinerariosEscalasPar(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]):(String, String)=>List[Itinerario] = {
+    def calcularEscalasPar(vuelos:List[Itinerario]):List[(Itinerario, Int)] = {
+      val sumaEscalas = for{
+        i <- vuelos
+        sumas = sumarEscalas(i)
+      } yield (i, sumas)
+      sumaEscalas
+    }
+
     @tailrec
     def sumarEscalas(itinerario: Itinerario, acc:Int=0): Int = {
       itinerario match {
@@ -116,16 +124,28 @@ class ItinerariosPar() {
     }
     (code1: String, code2:String) => {
       val itinerario = itinerariosPar(vuelos, aeropuertos)
-      val sumaEscalas = for{
-        i <- itinerario(code1, code2)
-        sumas = sumarEscalas(i)
-      } yield (i, sumas)
-      sumaEscalas.sortBy(_._2).par.take(3).map(_._1).toList
+      val itinerarios = itinerario(code1, code2)
+      val mitad = itinerarios.length/2
+      val (primeraMitad, segundaMitad) = itinerarios.splitAt(mitad)
+      //Se aplica paralelización de la lista luego de dividirla a la mitad
+      val sumasEscalasPar = parallel(calcularEscalasPar(primeraMitad),
+        calcularEscalasPar(segundaMitad)
+      )
+      //Se concatenan las dos listas y se ordenan por la cantidad de escalas
+      (sumasEscalasPar._1 ++ sumasEscalasPar._2).sortBy(_._2).take(3).par.map(_._1).toList
     }
   }
 
   def itinerariosAirePar(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
     val aeropuertoMap: Map[String, Aeropuerto] = aeropuertos.map(a => a.Cod -> a).toMap
+
+    def calculoAirePar(vuelo: List[Itinerario]): List[(Itinerario, Int)] = {
+      for{
+        i <- vuelo
+        sumas = sumarHoras(i)
+      } yield(i, sumas)
+    }
+
     @tailrec
     def sumarHoras(itinerario: Itinerario, acc:Int=0): Int = {
       itinerario match {
@@ -145,26 +165,38 @@ class ItinerariosPar() {
 
     (code1: String, code2:String) => {
       val itinerario = itinerariosPar(vuelos, aeropuertos)
-      val sumarHoraVuelo = for{
-        i <- itinerario(code1, code2).par.toList
-        sumas = sumarHoras(i)
-      } yield (i, sumas)
-
+      val itinerarios = itinerario(code1, code2)
+      val mitad = itinerarios.length/2
+      val (primeraMitad, segundaMitad) = itinerarios.splitAt(mitad)
+      val horasVuelosPar = parallel(calculoAirePar(primeraMitad),
+        calculoAirePar(segundaMitad)
+      )
       //Se agrega paralelizacion de datos para mejorar el rendimiento
-      sumarHoraVuelo.sortBy(_._2).par.take(3).map(_._1).toList
+      (horasVuelosPar._1 ++ horasVuelosPar._2).sortBy(_._2).take(3).par.map(_._1).toList
     }
   }
 
   def itinerariosSalidaPar(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String, Int, Int) => List[Itinerario] = {
-    (code1: String, code2:String, code3:Int, code4:Int) => {
-      val itinerario = itinerariosPar(vuelos, aeropuertos)
+
+    //Función que permite la paralelización de los datos
+    def calcularLlegadaPar(vuelos:List[Itinerario], code3:Int, code4:Int): List[(Itinerario, Int)] = {
       val mejoresSalidas = for{
-        i <- itinerario(code1, code2)
+        i <- vuelos
         horaPreferida = code3*60 + code4
         horarioLlegada = i.last.HL*60 + i.last.ML
         if horarioLlegada < horaPreferida
       } yield (i, i.head.HS*60 + i.head.MS)
-      mejoresSalidas.sortBy(_._2).par.take(1).map(_._1).toList
+      mejoresSalidas
+    }
+    (code1: String, code2:String, code3:Int, code4:Int) => {
+      val itinerario = itinerariosPar(vuelos, aeropuertos)
+      val itinerarios = itinerario(code1, code2)
+      val mitad = itinerarios.length/2
+      val (primeraMitad, segundaMitad) = itinerarios.splitAt(mitad)
+      val mejoresSalidas = parallel(calcularLlegadaPar(primeraMitad, code3, code4),
+        calcularLlegadaPar(segundaMitad, code3, code4)
+      )
+      (mejoresSalidas._1 ++ mejoresSalidas._2).sortBy(_._2).take(1).par.map(_._1).toList
     }
   }
 }

@@ -17,11 +17,12 @@ object App {
     val llegada = "ORD"
     val horaSal = 12
     val minSal = 30
-    bench.itinerarioBench(vuelosC1, aeropuertos, 7)(salida, llegada)
-    bench.itinerariosTiempoBench(vuelosC1, aeropuertos, 7)(salida, llegada)
-    bench.itinerariosEscalasBench(vuelosC1, aeropuertos, 7)(salida, llegada)
-    bench.itinerariosAireBench(vuelosC1, aeropuertos, 7)(salida, llegada)
-    bench.itinerariosSalidaBench(vuelosC1, aeropuertos, 7)(salida, llegada,horaSal,minSal)
+    val numRepe = 25
+    bench.itinerarioBench(vuelosC1, aeropuertos, numRepe)(salida, llegada)
+    bench.itinerariosTiempoBench(vuelosC1, aeropuertos, numRepe)(salida, llegada)
+    bench.itinerariosEscalasBench(vuelosC1, aeropuertos, numRepe)(salida, llegada)
+    bench.itinerariosAireBench(vuelosC1, aeropuertos, numRepe)(salida, llegada)
+    bench.itinerariosSalidaBench(vuelosC1, aeropuertos, numRepe)(salida, llegada,horaSal,minSal)
   }
 }
 

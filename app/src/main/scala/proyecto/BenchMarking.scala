@@ -51,7 +51,7 @@ class BenchMarking () {
     val itsPar = itinerarioPar.itinerariosTiempo(vuelo, aeropuerto)
 
     (salida:String, llegada:String) => {
-      println("---ItinerariosTiempoSeq vs ItinerariosTiempoSeqPar--")
+      println("---Tiempo Seq vs Tiempo Par--")
       // Calentar el sistema con ejecuciones adicionales
       for (_ <- 1 to 5) {
         itsSeq(salida, llegada)
@@ -87,7 +87,7 @@ class BenchMarking () {
     val itsPar = itinerarioPar.itinerariosEscalasPar(vuelo, aeropuerto)
 
     (salida:String, llegada:String) => {
-      println("---ItinerariosEscalasSeq vs ItinerariosEscalasPar--")
+      println("---Escalas Seq vs Escalas Par--")
       // Calentar el sistema con ejecuciones adicionales
       for (_ <- 1 to 5) {
         itsSeq(salida, llegada)
@@ -123,7 +123,7 @@ class BenchMarking () {
     val itsPar = itinerarioPar.itinerariosAirePar(vuelo, aeropuerto)
 
     (salida:String, llegada:String) => {
-      println("---ItinerariosAireSeq vs ItinerariosAirePar--")
+      println("---Aire Seq vs Aire Par--")
       // Calentar el sistema con ejecuciones adicionales
       for (_ <- 1 to 5) {
         itsSeq(salida, llegada)
@@ -159,7 +159,7 @@ class BenchMarking () {
     val itsPar = itinerarioPar.itinerariosSalidaPar(vuelo, aeropuerto)
 
     (salida:String, llegada:String, horaL:Int , minL:Int) => {
-      println("---ItinerariosSalidaSeq vs ItinerariosSalidaPar--")
+      println("---Salida Seq vs Salida Par--")
       // Calentar el sistema con ejecuciones adicionales
       for (_ <- 1 to 5) {
         itsSeq(salida, llegada, horaL, minL)
