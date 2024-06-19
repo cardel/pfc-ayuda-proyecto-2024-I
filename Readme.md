@@ -1,3 +1,7 @@
-# Repositorio base
+# Proyecto Final PFC
 
-Este repositorio tiene las configuraciones y librerías necesarias para trabajar concurrencia
+### Integrantes
+
+Juan Miguel Palacios Doncel - 2359321  
+Nicolas Rodriguez Romero - 2266071  
+Jhon Alexis Ruiz Quiceno - 2266014
