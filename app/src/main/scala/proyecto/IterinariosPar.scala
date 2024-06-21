@@ -2,17 +2,26 @@ package proyecto
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import scala.collection.parallel.CollectionConverters._
+import scala.concurrent.{ExecutionContext, Future}
 
 class ItinerariosPar() {
   val itinerarioObj = new Itinerario()
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
 
-  def itinerariosPar(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
+  private val objitinerarioSeq = new Itinerario()
+
+  def itinerariosPar(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto])(implicit ec: ExecutionContext): (String, String) => Future[List[List[Vuelo]]] = {
     //Recibe una lista de vuelos y aeropuertos
     //Retorna una función que recibe los codigos de dos aeropuertos
     //Retorna todos los itinerarios posibles de cod1 a cod2
-    (cod1:String, cod2:String)=> List[Itinerario]()
+    def generarItinerarios(cod1: String, cod2: String): Future[List[List[Vuelo]]] = {
+      Future {
+        objitinerarioSeq.itinerarios(vuelos, aeropuertos)(cod1, cod2)
+      }
+    }
+
+    generarItinerarios
   }
 
   def itinerariosTiempoPar(vuelos: List[Vuelo], aeropuertos: List[Aeropuerto]): (String, String) => Future[List[List[Vuelo]]] = {
@@ -62,6 +71,7 @@ class ItinerariosPar() {
 
     minimoTiempo
   }
+  
   def itinerariosEscalasPar(vuelos:List[Vuelo], aeropuertos:List[Aeropuerto]):(String, String)=>List[Itinerario]
   = {
     //Recibe una lista de vuelos y aeropuertos
@@ -78,7 +88,12 @@ class ItinerariosPar() {
     //que minimizan el tiempo en itinerarios
     (cod1:String, cod2:String)=> List[Itinerario]()
   }
-
-
-
+  
+  def itinerariosSalidaPar(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String, Int, Int) => List[Itinerario] = {
+    //Recibe una lista de vuelos y aeropuertos
+    //Retorna una función que recibe los codigos de dos aeropuertos y dos enteros, que es la hora de la cita
+    //Retorna todos los tres mejores itinerarios posibles de cod1 a cod2
+    //que permiten llegar a una hora de la cita
+    (cod1:String, cod2:String, HC:Int, MC:Int)=> List[Itinerario]()
+  }
 }
