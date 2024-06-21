@@ -143,12 +143,12 @@ class Itinerario() {
     minimoAire
   }
 
-  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String, Int, Int) => List[List[Vuelo]] = {
+  def itinerariosSalida(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String, Int, Int) => List[Vuelo] = {
     def convertirAMinutos(hora: Int, minutos: Int): Int = {
       hora * 60 + minutos
     }
 
-    def minimaSalida(cod1: String, cod2: String, horaCita: Int, minCita: Int): List[List[Vuelo]] = {
+    def minimaSalida(cod1: String, cod2: String, horaCita: Int, minCita: Int): List[Vuelo] = {
       val tiempoCita = convertirAMinutos(horaCita, minCita)
       val itsAll = itinerarios(vuelos, aeropuertos)(cod1, cod2)
       val itsValidos = itsAll.filter(it => convertirAMinutos(it.last.HL, it.last.ML) <= tiempoCita)
@@ -156,7 +156,7 @@ class Itinerario() {
       if (itsValidos.isEmpty) List()
       else {
         println(itsValidos)
-        itsValidos.sortBy(it => (tiempoCita - convertirAMinutos(it.last.HL, it.last.ML), -convertirAMinutos(it.head.HS, it.head.MS))).take(1)
+        itsValidos.sortBy(it => (tiempoCita - convertirAMinutos(it.last.HL, it.last.ML), -convertirAMinutos(it.head.HS, it.head.MS))).take(1).head
       }
     }
 
