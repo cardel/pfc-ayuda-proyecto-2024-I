@@ -155,7 +155,6 @@ class Itinerario() {
 
       if (itsValidos.isEmpty) List()
       else {
-        println(itsValidos)
         itsValidos.sortBy(it => (tiempoCita - convertirAMinutos(it.last.HL, it.last.ML), -convertirAMinutos(it.head.HS, it.head.MS))).take(1).head
       }
     }
