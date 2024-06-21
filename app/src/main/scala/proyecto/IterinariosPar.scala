@@ -4,16 +4,25 @@ import common._
 
 import scala.collection.parallel.CollectionConverters._
 import scala.collection.parallel.ParSeq
+import scala.concurrent.{ExecutionContext, Future}
 
 class ItinerariosPar() {
   type aeropuertos = List[Aeropuerto]
   type vuelos = List[Vuelo]
 
-  def itinerariosPar(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
+  private val objitinerarioSeq = new Itinerario()
+
+  def itinerariosPar(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto])(implicit ec: ExecutionContext): (String, String) => Future[List[List[Vuelo]]] = {
     //Recibe una lista de vuelos y aeropuertos
     //Retorna una función que recibe los codigos de dos aeropuertos
     //Retorna todos los itinerarios posibles de cod1 a cod2
-    (cod1:String, cod2:String)=> List[Itinerario]()
+    def generarItinerarios(cod1: String, cod2: String): Future[List[List[Vuelo]]] = {
+      Future {
+        objitinerarioSeq.itinerarios(vuelos, aeropuertos)(cod1, cod2)
+      }
+    }
+
+    generarItinerarios
   }
 
   def itinerariosTiempo(vuelos: List[Vuelo], aeropuertos:List[Aeropuerto]): (String, String) => List[Itinerario] = {
@@ -47,5 +56,4 @@ class ItinerariosPar() {
     //que permiten llegar a una hora de la cita
     (cod1:String, cod2:String, HC:Int, MC:Int)=> List[Itinerario]()
   }
-
 }
